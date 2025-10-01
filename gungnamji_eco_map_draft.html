@@ -32,7 +32,7 @@
     <div class="brand">궁남지 생태지도</div>
     <div class="panel">
       <strong>레이어</strong><br>
-      <label><input type="checkbox" id="birdsToggle" checked> 조류</label><br>
+      <label><input type="checkbox" id="birdsToggle" checked> 곤충 외 동물</label><br>
       <label><input type="checkbox" id="plantsToggle" checked> 식물</label><br>
       <label><input type="checkbox" id="insectsToggle" checked> 곤충</label><br>
       <label><input type="checkbox" id="heatToggle"> 히트맵</label>
@@ -95,12 +95,13 @@ const groups={birds:L.layerGroup().addTo(map),plants:L.layerGroup().addTo(map),i
 
 // 3) 데이터 (샘플 + 사용자 요청 네발나비)
 const points=[
- {cat:'birds',name:'왜가리',lat:36.2702,lon:126.9121},
+ {cat:'birds',name:'청개구리',lat:36.269611,lon:126.911023,
+  desc: '아주 귀여운 개구리',
+  ing:'./Images/b1.jpg' },
  {cat:'plants',name:'연꽃 군락',lat:36.2699,lon:126.9130},
- {cat:'insects',name:'잠자리',lat:36.2696,lon:126.9117},
  {cat:'insects',name:'네발나비 (Polygonia c-aureum)', lat:36.269439, lon:126.9137465,
   desc:'이 나비는 네발나비로 주황색 쥐가 파먹은듯한 날개가 특징이다.',
-  img:'./Images/bf1.jpg'}
+  img:'./Images/bf.jpg'},
   {cat:'insects',name:'남방부전나비 (Pseudozizeeria maha)', lat:36.2691517, lon:126.9136577,
   desc:'가장 흔한 부전나비다.',
   img:'./Images/bf2.jpg'}
