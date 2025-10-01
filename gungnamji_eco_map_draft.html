@@ -87,9 +87,9 @@ L.polygon(ringCoords,{color:'#10b981',weight:2,dashArray:'5,5',fill:false}).addT
 
 // 2) 아이콘/그룹
 const icons={
-  birds:L.divIcon({html:'<div style="background:#2563eb;color:#fff;padding:3px 5px;border-radius:6px">🕊️</div>',iconSize:[14,14],iconAnchor:[7,7]}),
-  plants:L.divIcon({html:'<div style="background:#059669;color:#fff;padding:3px 5px;border-radius:6px">🌿</div>',iconSize:[14,14],iconAnchor:[7,7]}),
-  insects:L.divIcon({html:'<div style="background:#d97706;color:#fff;padding:3px 5px;border-radius:6px">🐛</div>',iconSize:[14,14],iconAnchor:[7,7]})
+  birds:L.divIcon({html:'<div style="background:#2563eb;color:#fff;padding:1px 3px;border-radius:6px">🕊️</div>',iconSize:[14,14],iconAnchor:[7,7]}),
+  plants:L.divIcon({html:'<div style="background:#059669;color:#fff;padding:1px 3px;border-radius:6px">🌿</div>',iconSize:[14,14],iconAnchor:[7,7]}),
+  insects:L.divIcon({html:'<div style="background:#d97706;color:#fff;padding:1px 3px;border-radius:6px">🐛</div>',iconSize:[14,14],iconAnchor:[7,7]})
 };
 const groups={birds:L.layerGroup().addTo(map),plants:L.layerGroup().addTo(map),insects:L.layerGroup().addTo(map)};
 
