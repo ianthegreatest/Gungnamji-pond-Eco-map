@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>궁남지 생태지도 (모바일 우선)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css"/>
+  <style>
+    html, body { height:100%; margin:0; }
+    body { font-family:system-ui, sans-serif; }
+    #map { width:100%; height:100%; }
+    #app { display:grid; grid-template-columns:300px 1fr; height:100%; }
+    aside { border-right:1px solid #ddd; padding:12px; overflow:auto; background:#333; }
+    .brand { font-weight:700; font-size:18px; margin-bottom:8px; color:#fff; }
+    .legend { display:flex; align-items:center; gap:6px; margin:4px 0; color:#fff; }
+    .chip { width:14px; height:14px; border-radius:4px; }
+    .chip.birds{background:#2563eb;} .chip.plants{background:#059669;} .chip.insects{background:#d97706;}
+    .panel{ background:#444; border:1px solid #555; border-radius:8px; padding:8px; margin:8px 0; color:#fff; }
+    .fab{ position:fixed; right:12px; bottom:12px; z-index:1000; padding:8px 14px; border-radius:999px; background:#fff; border:1px solid #ddd; box-shadow:0 2px 8px #0002; }
+    #sheet{ position:fixed; left:0; right:0; bottom:0; background:#fff; border-top-left-radius:16px; border-top-right-radius:16px; transform:translateY(100%); transition:.3s; z-index:999; max-height:70%; overflow:auto; }
+    #sheet.open{ transform:translateY(0); }
+    #grab{ width:40px; height:4px; background:#ccc; border-radius:2px; margin:10px auto; }
+    @media(max-width:880px){ #app{ grid-template-columns:1fr; } aside{display:none;} .fab{display:block;} } 
+    @media(min-width:881px){ .fab,#sheet{display:none;} }
+  </style>
+</head>
+<body>
+<div id="app">
+  <aside>
+    <div class="brand">궁남지 생태지도</div>
+    <div class="panel">
+      <strong>레이어</strong><br>
+      <label><input type="checkbox" id="birdsToggle" checked> 조류</label><br>
+      <label><input type="checkbox" id="plantsToggle" checked> 식물</label><br>
+      <label><input type="checkbox" id="insectsToggle" checked> 곤충</label><br>
+      <label><input type="checkbox" id="heatToggle"> 히트맵</label>
+    </div>
+    <div class="panel">
+      <strong>범례</strong>
+      <div class="legend"><span class="chip birds"></span>조류</div>
+      <div class="legend"><span class="chip plants"></span>식물</div>
+      <div class="legend"><span class="chip insects"></span>곤충</div>
+    </div>
+  </aside>
+  <main><div id="map"></div></main>
+</div>
+<button class="fab" id="openSheet">레이어</button>
+<div id="sheet"><div id="grab"></div>
+  <div style="padding:10px 16px">
+    <strong>레이어</strong><br>
+    <label><input type="checkbox" id="mb_birds" checked> 조류</label><br>
+    <label><input type="checkbox" id="mb_plants" checked> 식물</label><br>
+    <label><input type="checkbox" id="mb_insects" checked> 곤충</label><br>
+    <label><input type="checkbox" id="mb_heat"> 히트맵</label>
+    <hr>
+    <strong>범례</strong>
+    <div class="legend"><span class="chip birds"></span>조류</div>
+    <div class="legend"><span class="chip plants"></span>식물</div>
+    <div class="legend"><span class="chip insects"></span>곤충</div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
+<script>
+// 0) 지도 & 베이스레이어
+const map = L.map('map').setView([36.269681,126.912143],16);
+const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19, attribution:'&copy; OpenStreetMap'}).addTo(map);
+const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19, attribution:'Tiles &copy; Esri'});
+L.control.layers({"일반(OSM, 기본)":osm,"위성(Esri)":esriSat},{},{collapsed:true}).addTo(map);
+
+// 1) 흰색 배경 마스크 (반경 340m 원 내부만 보이게)
+map.createPane('maskPane');
+map.getPane('maskPane').style.zIndex = 650; // 타일/벡터 위에 덮음
+map.getPane('maskPane').style.pointerEvents = 'none';
+function toRad(d){return d*Math.PI/180;} function toDeg(r){return r*180/Math.PI;}
+function circleCoords(lat,lng,r,steps=128){const R=6371000,d=r/R,lat1=toRad(lat),lon1=toRad(lng);const coords=[];for(let i=0;i<steps;i++){const brng=toRad(i/steps*360);const lat2=Math.asin(Math.sin(lat1)*Math.cos(d)+Math.cos(lat1)*Math.sin(d)*Math.cos(brng));const lon2=lon1+Math.atan2(Math.sin(brng)*Math.sin(d)*Math.cos(lat1),Math.cos(d)-Math.sin(lat1)*Math.sin(lat2));coords.push([toDeg(lat2),toDeg(lon2)]);}return coords;}
+const focus={lat:36.269681,lng:126.912143,radiusM:340};
+const ringCoords = circleCoords(focus.lat, focus.lng, focus.radiusM, 128);
+const world=[[-89.9,-179.9],[-89.9,179.9],[89.9,179.9],[89.9,-179.9]];
+L.polygon([world, ringCoords.slice().reverse()], {pane:'maskPane', stroke:false, fillColor:'#fff', fillOpacity:1}).addTo(map);
+L.polygon(ringCoords,{color:'#10b981',weight:2,dashArray:'5,5',fill:false}).addTo(map);
+
+// 2) 아이콘/그룹
+const icons={
+  birds:L.divIcon({html:'<div style="background:#2563eb;color:#fff;padding:3px 5px;border-radius:6px">🕊️</div>',iconSize:[28,28],iconAnchor:[14,14]}),
+  plants:L.divIcon({html:'<div style="background:#059669;color:#fff;padding:3px 5px;border-radius:6px">🌿</div>',iconSize:[28,28],iconAnchor:[14,14]}),
+  insects:L.divIcon({html:'<div style="background:#d97706;color:#fff;padding:3px 5px;border-radius:6px">🐛</div>',iconSize:[28,28],iconAnchor:[14,14]})
+};
+const groups={birds:L.layerGroup().addTo(map),plants:L.layerGroup().addTo(map),insects:L.layerGroup().addTo(map)};
+
+// 3) 데이터 (샘플 + 사용자 요청 네발나비)
+const points=[
+ {cat:'birds',name:'왜가리',lat:36.2702,lon:126.9121},
+ {cat:'plants',name:'연꽃 군락',lat:36.2699,lon:126.9130},
+ {cat:'insects',name:'잠자리',lat:36.2696,lon:126.9117},
+ {cat:'insects',name:'네발나비 (Polygonia c-aureum)', lat:36.269439, lon:126.9137465,
+  desc:'이 나비는 네발나비로 주황색 쥐가 파먹은듯한 날개가 특징이다.',
+  img:'sandbox:/mnt/data/8f8dad55-3310-4fc5-8d97-53c49ad8ae28.png'}
+];
+
+points.forEach(p=>{
+  const descHtml = p.desc?`<div style="margin:6px 0;color:#374151">${p.desc}</div>`:'';
+  const imgHtml = p.img?`<img src="${p.img}" alt="${p.name}" style="width:100%;height:auto;border-radius:8px">`:'';
+  const html = `<div style="min-width:220px;max-width:280px;line-height:1.35">
+    <div style="font-weight:700;margin-bottom:4px">${p.name||''}</div>
+    ${descHtml}${imgHtml}
+  </div>`;
+  const icon = icons[p.cat] || icons.plants;
+  L.marker([p.lat,p.lon],{icon}).bindPopup(html).addTo(groups[p.cat]);
+});
+
+// 4) 히트맵
+const heat = L.heatLayer(points.map(p=>[p.lat,p.lon, (p.cat==='birds'?0.6:(p.cat==='insects'?0.8:0.5)) ]),{radius:25,blur:15});
+
+// 5) 토글 바인딩 (데스크톱/모바일)
+function bind(id,key){ const el=document.getElementById(id); if(!el) return; el.addEventListener('change',e=>{ e.target.checked?groups[key].addTo(map):map.removeLayer(groups[key]); }); }
+bind('birdsToggle','birds'); bind('plantsToggle','plants'); bind('insectsToggle','insects');
+const ht=document.getElementById('heatToggle'); if(ht){ ht.addEventListener('change',e=>{ e.target.checked?heat.addTo(map):map.removeLayer(heat); }); }
+const sheet=document.getElementById('sheet'); document.getElementById('openSheet').onclick=()=>sheet.classList.add('open'); document.getElementById('grab').onclick=()=>sheet.classList.remove('open');
+bind('mb_birds','birds'); bind('mb_plants','plants'); bind('mb_insects','insects');
+const mbht=document.getElementById('mb_heat'); if(mbht){ mbht.addEventListener('change',e=>{ e.target.checked?heat.addTo(map):map.removeLayer(heat); }); }
+</script>
+</body>
+</html>
