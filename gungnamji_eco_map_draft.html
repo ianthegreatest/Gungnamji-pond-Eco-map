@@ -87,9 +87,9 @@ L.polygon(ringCoords,{color:'#10b981',weight:2,dashArray:'5,5',fill:false}).addT
 
 // 2) 아이콘/그룹
 const icons={
-  birds:L.divIcon({html:'<div style="background:#2563eb;color:#fff;padding:3px 5px;border-radius:6px">🕊️</div>',iconSize:[28,28],iconAnchor:[14,14]}),
-  plants:L.divIcon({html:'<div style="background:#059669;color:#fff;padding:3px 5px;border-radius:6px">🌿</div>',iconSize:[28,28],iconAnchor:[14,14]}),
-  insects:L.divIcon({html:'<div style="background:#d97706;color:#fff;padding:3px 5px;border-radius:6px">🐛</div>',iconSize:[28,28],iconAnchor:[14,14]})
+  birds:L.divIcon({html:'<div style="background:#2563eb;color:#fff;padding:3px 5px;border-radius:6px">🕊️</div>',iconSize:[14,14],iconAnchor:[7,7]}),
+  plants:L.divIcon({html:'<div style="background:#059669;color:#fff;padding:3px 5px;border-radius:6px">🌿</div>',iconSize:[14,14],iconAnchor:[7,7]}),
+  insects:L.divIcon({html:'<div style="background:#d97706;color:#fff;padding:3px 5px;border-radius:6px">🐛</div>',iconSize:[14,14],iconAnchor:[7,7]})
 };
 const groups={birds:L.layerGroup().addTo(map),plants:L.layerGroup().addTo(map),insects:L.layerGroup().addTo(map)};
 
@@ -99,10 +99,10 @@ const points=[
   desc: '아주 귀여운 개구리',
   ing:'./Images/b1.jpg' },
  {cat:'plants',name:'연꽃 군락',lat:36.2699,lon:126.9130},
- {cat:'insects',name:'네발나비 (Polygonia c-aureum)', lat:36.269439, lon:126.9137465,
+ {cat:'insects',name:'네발나비 (<i>Polygonia c-aureum</i>)', lat:36.269439, lon:126.9137465,
   desc:'이 나비는 네발나비로 주황색 쥐가 파먹은듯한 날개가 특징이다.',
   img:'./Images/bf.jpg'},
-  {cat:'insects',name:'남방부전나비 (Pseudozizeeria maha)', lat:36.2691517, lon:126.9136577,
+  {cat:'insects',name:'남방부전나비 (<i>Pseudozizeeria maha</i>)', lat:36.2691517, lon:126.9136577,
   desc:'가장 흔한 부전나비다.',
   img:'./Images/bf2.jpg'}
 ];
