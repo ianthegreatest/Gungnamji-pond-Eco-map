@@ -86,19 +86,39 @@ L.polygon([world, ringCoords.slice().reverse()], {pane:'maskPane', stroke:false,
 L.polygon(ringCoords,{color:'#10b981',weight:2,dashArray:'5,5',fill:false}).addTo(map);
 
 // 2) 아이콘/그룹
+const makeIcon=(cls,emoji)=> L.divIcon({
+className:'eco-icon',
+html:`<div class="eco-badge ${cls}">${emoji}</div>`,
+iconSize:[18,18],
+iconAnchor:[9,9]
+});
 const icons={
-  birds:L.divIcon({html:'<div style="background:#2563eb;color:#fff;padding:1px 3px;border-radius:6px">🕊️</div>',iconSize:[14,14],iconAnchor:[7,7]}),
-  plants:L.divIcon({html:'<div style="background:#059669;color:#fff;padding:1px 3px;border-radius:6px">🌿</div>',iconSize:[14,14],iconAnchor:[7,7]}),
-  insects:L.divIcon({html:'<div style="background:#d97706;color:#fff;padding:1px 3px;border-radius:6px">🐛</div>',iconSize:[14,14],iconAnchor:[7,7]})
+birds: makeIcon('', '🕊️'),
+plants: makeIcon('plants', '🌿'),
+insects: makeIcon('insects', '🐛')
 };
 const groups={birds:L.layerGroup().addTo(map),plants:L.layerGroup().addTo(map),insects:L.layerGroup().addTo(map)};
 
 // 3) 데이터 (샘플 + 사용자 요청 네발나비)
 const points=[
- {cat:'birds',name:'청개구리',lat:36.269611,lon:126.911023,
+ {cat:'birds',name:'참개구리 (<i>Pelophylax nigromaculatus</i>)',lat:36.269611,lon:126.911023,
   desc: '아주 귀여운 개구리',
   ing:'./Images/b1.jpg' },
+ {cat:'birds',name:'중백로 (<i>Ardea intermedia</i>)',lat:36.270368,lon:126.911524,
+  desc: '하얀 철새',
+  ing:'./Images/b2.jpg' },
+ {cat:'birds',name:'왜가리 (<i>Ardea cinerea</i>)',lat:36.268943,lon:126.913767,
+  desc: '회색 철새',
+  ing:'./Images/b3.jpg' },
+ {cat:'birds',name:'까치 (<i>Pica serica</i>)',lat:36.268094,lon:126.912281,
+  desc: '흔히 보는 새',
+  ing:'./Images/b4.jpg'},
+ {cat:'birds',name:'흰뺨검둥오리 (<i>Anas zonorhyncha</i>)',lat:36.269638,lon:126.910922,
+  desc: '하얀 뺨을 가진 오리',
+  ing:'./Images/b5.jpg'},
+
  {cat:'plants',name:'연꽃 군락',lat:36.2699,lon:126.9130},
+
  {cat:'insects',name:'네발나비 (<i>Polygonia c-aureum</i>)', lat:36.269439, lon:126.9137465,
   desc:'이 나비는 네발나비로 주황색 쥐가 파먹은듯한 날개가 특징이다.',
   img:'./Images/bf.jpg'},
