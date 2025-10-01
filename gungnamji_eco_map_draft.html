@@ -14,7 +14,11 @@
     #app { display:grid; grid-template-columns:300px 1fr; height:100%; }
     aside { border-right:1px solid #ddd; padding:12px; overflow:auto; background:#333; }
     .brand { font-weight:700; font-size:18px; margin-bottom:8px; color:#fff; }
-    .legend { display:flex; align-items:center; gap:6px; margin:4px 0; color:#fff; }
+    .legend { display:flex; align-items:center; gap:6px; margin:4px 0; }
+    /* 사이드패널(어두운 배경)에서는 흰 글자 */
+    aside .legend { color:#fff; }
+    /* 모바일 시트(흰 배경)에서는 어두운 글자 */
+    #sheet .legend { color:#111; }  /* 혹은 #222 / #333 취향대로 */
     .chip { width:14px; height:14px; border-radius:4px; }
     .chip.birds{background:#2563eb;} .chip.plants{background:#059669;} .chip.insects{background:#d97706;}
     .panel{ background:#444; border:1px solid #555; border-radius:8px; padding:8px; margin:8px 0; color:#fff; }
